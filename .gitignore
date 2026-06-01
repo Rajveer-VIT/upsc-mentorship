@@ -1,0 +1,24 @@
+# === Frontend (Next.js / Node) ===
+node_modules/
+.next/
+out/
+.env
+.env.local
+.env*.local
+npm-debug.log*
+
+# === Backend (.NET) ===
+bin/
+obj/
+*.user
+*.suo
+appsettings.Development.json
+
+# === IDE ===
+.vs/
+.vscode/
+*.swp
+
+# === OS ===
+.DS_Store
+Thumbs.db
