@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * src/app/globals.css
+ * Global styles and theme tokens for UPSC Mentorship Platform
+ */
+
+@layer base {
+  :root {
+    /* Base Colors */
+    --background: #F8F6F1;
+    --foreground: #0A1128;
+
+    /* Primary Navy (Ashoka Chakra Navy) */
+    --navy-50: #121F3D;
+    --navy-100: #09132B;
+    --navy-200: #03081A;
+    --navy-300: #01040D;
+    --navy-DEFAULT: #0A1128;
+
+    /* Accent Gold (Saffron) */
+    --gold-light: #FFAE5C;
+    --gold-DEFAULT: #FF9933;
+    --gold-dark: #D97200;
+
+    /* Off-White */
+    --offwhite-DEFAULT: #F8F6F1;
+    --offwhite-dark: #EAE7DE;
+
+    /* Utilities */
+    --radius: 1.5rem;
+  }
+
+  .dark {
+    --background: #0A1128;
+    --foreground: #F8F6F1;
+  }
+}
+
+@layer base {
+  * {
+    border-color: #e2e8f0;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply antialiased font-sans;
+  }
+  
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--gold-DEFAULT);
+  }
+
+  ::selection {
+    background-color: rgba(201, 168, 76, 0.3);
+    color: #0B1426;
+  }
+}
+
+/* 
+ * Custom Utility Classes for Premium Look 
+ */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .glassmorphism {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .dark .glassmorphism {
+    background-color: rgba(11, 20, 38, 0.4);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-gold to-amber-500 bg-clip-text text-transparent;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 76, 0.2);
+  border-radius: 9999px;
+  border: 2px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 168, 76, 0.4);
+}
