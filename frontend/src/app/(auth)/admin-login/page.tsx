@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { motion } from 'framer-motion';
 import { PrimaryButton, Heading } from '@/components/ui';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2, ShieldAlert } from 'lucide-react';
 import { API_BASE_URL } from '@/lib/constants';
 import { useAdminAuth } from '@/store/useAdminAuth';
@@ -21,7 +21,7 @@ type AdminLoginValues = z.infer<typeof adminLoginSchema>;
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  //const searchParams = useSearchParams();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const { setAdminAuth } = useAdminAuth();
 
@@ -35,7 +35,7 @@ export default function AdminLoginPage() {
 
   const onSubmit = async (data: AdminLoginValues) => {
     setErrorMsg(null);
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/auth/admin-login`, {
         method: 'POST',
@@ -70,8 +70,7 @@ export default function AdminLoginPage() {
       }
 
       // Redirect to admin dashboard or callbackUrl
-      const callbackUrl = searchParams.get('callbackUrl') || '/dashboard/admin';
-      router.push(callbackUrl);
+      router.push('/dashboard/admin');
     } catch (err: any) {
       console.error('Admin login error:', err);
       setErrorMsg(err.message || 'An error occurred. Please try again.');
@@ -86,7 +85,7 @@ export default function AdminLoginPage() {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full bg-white dark:bg-navy-dark p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 relative z-10"
@@ -104,7 +103,7 @@ export default function AdminLoginPage() {
         </div>
 
         {errorMsg && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium border border-red-200 dark:border-red-800"
@@ -118,12 +117,11 @@ export default function AdminLoginPage() {
             <label className="block text-sm font-bold text-navy dark:text-cream mb-2">
               Admin Username
             </label>
-            <input 
+            <input
               {...register('username')}
-              type="text" 
-              className={`w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-navy text-slate-900 dark:text-white focus:ring-2 focus:ring-gold outline-none transition-all ${
-                errors.username ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-              }`}
+              type="text"
+              className={`w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-navy text-slate-900 dark:text-white focus:ring-2 focus:ring-gold outline-none transition-all ${errors.username ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
+                }`}
               placeholder="Enter admin username"
             />
             {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
@@ -133,19 +131,18 @@ export default function AdminLoginPage() {
             <label className="block text-sm font-bold text-navy dark:text-cream mb-2">
               Admin Password
             </label>
-            <input 
+            <input
               {...register('password')}
-              type="password" 
-              className={`w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-navy text-slate-900 dark:text-white focus:ring-2 focus:ring-gold outline-none transition-all ${
-                errors.password ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-              }`}
+              type="password"
+              className={`w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-navy text-slate-900 dark:text-white focus:ring-2 focus:ring-gold outline-none transition-all ${errors.password ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
+                }`}
               placeholder="Enter admin password"
             />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
 
-          <PrimaryButton 
-            type="submit" 
+          <PrimaryButton
+            type="submit"
             disabled={isSubmitting}
             className="w-full h-12 rounded-2xl font-semibold flex items-center justify-center gap-2"
           >
@@ -170,7 +167,7 @@ export default function AdminLoginPage() {
 
         <div className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
           <p>
-            User Login? 
+            User Login?
             <Link href="/login" className="text-gold hover:underline ml-1 font-semibold">
               Click here
             </Link>

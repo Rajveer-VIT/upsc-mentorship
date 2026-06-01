@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { motion } from 'framer-motion';
 import { PrimaryButton, Heading } from '@/components/ui';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { API_BASE_URL } from '@/lib/constants';
 import { useUserAuth } from '@/store/useUserAuth';
@@ -21,7 +21,7 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  //const searchParams = useSearchParams();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const { setUserAuth } = useUserAuth();
 
@@ -69,8 +69,7 @@ export default function LoginPage() {
       }
 
       // Redirect to requested page or home page
-      const redirectUrl = searchParams.get('redirect') || '/';
-      router.push(redirectUrl);
+      router.push('/');
     } catch (err: any) {
       console.error('Login error:', err);
       setErrorMsg(err.message || 'Invalid email or password. Please try again.');
@@ -79,7 +78,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full bg-white dark:bg-navy-dark p-10 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800"
@@ -98,24 +97,22 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label className="block text-sm font-bold text-navy dark:text-cream mb-2">Email Address</label>
-            <input 
+            <input
               {...register('email')}
-              type="email" 
-              className={`w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-navy text-slate-900 dark:text-white focus:ring-2 focus:ring-gold outline-none transition-all ${
-                errors.email ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-              }`}
+              type="email"
+              className={`w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-navy text-slate-900 dark:text-white focus:ring-2 focus:ring-gold outline-none transition-all ${errors.email ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
+                }`}
               placeholder="name@example.com"
             />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
           <div>
             <label className="block text-sm font-bold text-navy dark:text-cream mb-2">Password</label>
-            <input 
+            <input
               {...register('password')}
-              type="password" 
-              className={`w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-navy text-slate-900 dark:text-white focus:ring-2 focus:ring-gold outline-none transition-all ${
-                errors.password ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-              }`}
+              type="password"
+              className={`w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-navy text-slate-900 dark:text-white focus:ring-2 focus:ring-gold outline-none transition-all ${errors.password ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
+                }`}
               placeholder="••••••••"
             />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
