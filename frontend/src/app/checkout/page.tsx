@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Shield, ArrowLeft, Loader2, CreditCard, Lock, Sparkles, AlertCircle } from 'lucide-react';
@@ -103,7 +103,7 @@ const plans = [
   }
 ];
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planId = searchParams.get('plan');
@@ -280,7 +280,7 @@ export default function CheckoutPage() {
           <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/10">
             <Check className="w-10 h-10" />
           </div>
-          
+
           <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gold block mb-2">
             Payment Verified
           </span>
@@ -321,13 +321,13 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-navy text-navy dark:text-white pt-16 pb-20">
-      
+
       {/* Checkout Container */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        
+
         {/* Navigation Breadcrumb */}
         <div className="flex items-center gap-4 mb-8">
-          <button 
+          <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-navy dark:hover:text-white transition-colors group"
           >
@@ -338,7 +338,7 @@ export default function CheckoutPage() {
 
         {/* 2-Column Checkout Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* COLUMN 1: ORDER SUMMARY (7 columns) */}
           <div className="lg:col-span-7 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-8 sm:p-10 shadow-xl">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-gold mb-1 block">
@@ -412,11 +412,11 @@ export default function CheckoutPage() {
 
           {/* COLUMN 2: SECURE CHECKOUT PORTAL (5 columns) */}
           <div className="lg:col-span-5 space-y-6">
-            
+
             {/* Visual Credit Card Mockup */}
             <div className="relative h-56 rounded-[2rem] bg-gradient-to-br from-slate-900 via-navy-dark to-slate-950 p-6 text-white border border-white/10 shadow-2xl overflow-hidden flex flex-col justify-between group">
               <div className="absolute top-0 right-0 w-48 h-48 bg-gold/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-              
+
               <div className="flex justify-between items-start">
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black tracking-widest uppercase opacity-40">UPSC Mentorship Circle</span>
@@ -528,5 +528,22 @@ export default function CheckoutPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 dark:bg-navy flex flex-col items-center justify-center p-4">
+          <Loader2 className="w-12 h-12 text-gold animate-spin mb-4" />
+          <p className="text-navy dark:text-cream/70 text-sm font-semibold tracking-widest uppercase">
+            Loading Checkout...
+          </p>
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }
