@@ -1,6 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using UpscMentorship.Api.Extensions;
 using UpscMentorship.Application.Extensions;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,27 +20,30 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new() { Title = "UPSC Mentorship API", Version = "v1" });
-    
-    // Add JWT support in Swagger UI
-    options.AddSecurityDefinition("Bearer", new()
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "UPSC Mentorship API",
+        Version = "v1"
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer",
         BearerFormat = "JWT",
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+        In = ParameterLocation.Header,
+        Description = "Enter: Bearer {your JWT token}"
     });
-    
-    options.AddSecurityRequirement(new()
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new()
+            new OpenApiSecurityScheme
             {
-                Reference = new()
+                Reference = new OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
             },
@@ -50,29 +54,40 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Automatically create database if it doesn't exist (LocalDB support)
+// Database Migration
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<UpscMentorship.Infrastructure.Persistence.AppDbContext>();
-    await context.Database.MigrateAsync();
-}
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    try
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "UPSC Mentorship API V1");
-    });
+        var context = scope.ServiceProvider
+            .GetRequiredService<UpscMentorship.Infrastructure.Persistence.AppDbContext>();
+
+        await context.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Migration Error: {ex.Message}");
+    }
 }
 
-app.UseHttpsRedirection();
+// Swagger ON for Production also
+app.UseSwagger();
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "UPSC Mentorship API V1");
+    c.RoutePrefix = "swagger";
+});
+
+// TEMPORARILY DISABLED FOR SMARTERASP
+// app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
+
 app.UseRateLimiter();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
