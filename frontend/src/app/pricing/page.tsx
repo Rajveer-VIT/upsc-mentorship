@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Star, Zap, Shield, HelpCircle, ArrowRight, Minus, ChevronRight, ArrowLeft } from 'lucide-react';
 import { PrimaryButton, GhostButton, Heading } from '@/components/ui';
@@ -31,7 +31,13 @@ const loadRazorpayScript = () => {
 const PricingPage = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [paymentLoading, setPaymentLoading] = useState<string | null>(null);
+  const [purchasedPlanId, setPurchasedPlanId] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const stored = localStorage.getItem('user_purchasedPlanId');
+    if (stored) setPurchasedPlanId(stored);
+  }, []);
 
   const handlePurchasePlan = async (planId: string) => {
     const token = localStorage.getItem('user_accessToken') || localStorage.getItem('accessToken');
@@ -220,11 +226,20 @@ const PricingPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               className={`relative group rounded-[3rem] p-10 transition-all duration-500 hover:-translate-y-2
-                ${plan.popular 
-                  ? 'bg-navy-dark border-2 border-gold shadow-[0_30px_60px_rgba(201,168,76,0.15)] text-white' 
-                  : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-gold/30'}`}
+                ${purchasedPlanId === plan.id
+                  ? 'bg-emerald-950/60 border-2 border-emerald-500/60 shadow-[0_30px_60px_rgba(16,185,129,0.12)] text-white'
+                  : plan.popular
+                    ? 'bg-navy-dark border-2 border-gold shadow-[0_30px_60px_rgba(201,168,76,0.15)] text-white'
+                    : 'bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-gold/30'}`}
             >
-              {plan.popular && (
+              {/* Active plan badge */}
+              {purchasedPlanId === plan.id && (
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-emerald-500 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-xl flex items-center gap-1.5">
+                  <span>✓</span> Plan Active
+                </div>
+              )}
+
+              {plan.popular && purchasedPlanId !== plan.id && (
                 <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gold px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-navy shadow-xl">
                   Most Popular
                 </div>
@@ -263,14 +278,20 @@ const PricingPage = () => {
               </ul>
 
               <div className="mt-auto">
-                <PrimaryButton 
-                  onClick={() => handlePurchasePlan(plan.id)}
-                  disabled={paymentLoading !== null}
-                  className={`w-full py-5 text-sm group ${!plan.popular && 'bg-navy dark:bg-white text-white dark:text-navy hover:bg-navy-dark dark:hover:bg-cream'}`}
-                >
-                   {paymentLoading === plan.id ? 'Connecting...' : plan.popular ? 'Claim Your Rank' : 'Get Started'}
-                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </PrimaryButton>
+                {purchasedPlanId === plan.id ? (
+                  <div className="w-full py-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 cursor-default">
+                    <span>✓</span> Purchased Plan
+                  </div>
+                ) : (
+                  <PrimaryButton
+                    onClick={() => handlePurchasePlan(plan.id)}
+                    disabled={paymentLoading !== null}
+                    className={`w-full py-5 text-sm group ${!plan.popular && 'bg-navy dark:bg-white text-white dark:text-navy hover:bg-navy-dark dark:hover:bg-cream'}`}
+                  >
+                    {paymentLoading === plan.id ? 'Connecting...' : plan.popular ? 'Claim Your Rank' : 'Get Started'}
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </PrimaryButton>
+                )}
               </div>
             </motion.div>
           ))}

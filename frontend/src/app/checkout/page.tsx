@@ -211,8 +211,17 @@ function CheckoutContent() {
               throw new Error(verifyResult.message || 'Payment signature verification failed.');
             }
 
-            // Success animation/state
+            // Store purchased plan in localStorage
+            if (plan) {
+              localStorage.setItem('user_purchasedPlanId', plan.id);
+              localStorage.setItem('user_purchasedPlanName', plan.name);
+            }
+
+            // Show success state then redirect to pricing
             setSuccess(true);
+            setTimeout(() => {
+              router.push('/pricing');
+            }, 3000);
           } catch (err: any) {
             alert(`Payment verification failed: ${err.message}`);
           }
@@ -270,7 +279,7 @@ function CheckoutContent() {
           transition={{ type: 'spring', duration: 0.8 }}
           className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[3rem] p-12 max-w-xl shadow-2xl relative overflow-hidden"
         >
-          {/* Confetti element */}
+          {/* Confetti dots */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-10 left-10 w-2 h-2 bg-gold rounded-full animate-ping" />
             <div className="absolute bottom-10 right-10 w-3 h-3 bg-emerald-500 rounded-full animate-bounce" />
@@ -288,11 +297,11 @@ function CheckoutContent() {
             Welcome to the <span className="text-gold italic">Inner Circle</span>
           </h2>
           <p className="text-sm text-slate-500 dark:text-cream/70 mb-4 leading-relaxed max-w-md mx-auto">
-            Your transaction has completed successfully! Your mentorship plan is now active. Your personal timetable calendar and WhatsApp gateway details have been initiated.
+            Your transaction has completed successfully! Your <strong>{plan?.name}</strong> is now active.
           </p>
 
           {/* Invoice email notification */}
-          <div className="flex items-center justify-center gap-2.5 bg-emerald-500/8 border border-emerald-500/20 rounded-2xl px-5 py-3 mb-8 max-w-sm mx-auto">
+          <div className="flex items-center justify-center gap-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3 mb-6 max-w-sm mx-auto">
             <span className="text-lg">📧</span>
             <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold text-left">
               Invoice sent to <span className="font-black">{userEmail || 'your email'}</span>
@@ -300,12 +309,10 @@ function CheckoutContent() {
             </p>
           </div>
 
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center justify-center px-8 py-4 bg-navy dark:bg-gold text-white dark:text-navy rounded-full font-bold uppercase tracking-wider text-xs shadow-xl shadow-gold/20 hover:scale-105 transition-all"
-          >
-            Access Your Dashboard
-          </Link>
+          {/* Redirect notice */}
+          <p className="text-[10px] text-slate-400 dark:text-cream/40 uppercase tracking-widest animate-pulse">
+            Redirecting to your plans in 3s...
+          </p>
         </motion.div>
       </div>
     );
@@ -464,7 +471,7 @@ function CheckoutContent() {
               <form onSubmit={handlePay} className="space-y-4">
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
-                    Subscriber Name (Pre-filled)
+                    Subscriber Name
                   </label>
                   <input
                     type="text"
@@ -476,7 +483,7 @@ function CheckoutContent() {
 
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">
-                    Email Address (Pre-filled)
+                    Email Address
                   </label>
                   <input
                     type="email"
