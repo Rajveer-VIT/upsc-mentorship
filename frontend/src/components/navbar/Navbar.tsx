@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavStore } from '@/store/useNavStore';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, User, ChevronRight } from 'lucide-react';
 import { useUserAuth } from '@/store/useUserAuth';
@@ -60,11 +61,15 @@ export const Navbar = () => {
               : 'bg-white/70 backdrop-blur-sm border border-transparent'}`}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="relative h-10 w-[60px] overflow-hidden rounded-xl bg-slate-900 border border-gold/30 flex items-center justify-center font-serif text-xl font-black transition-all group-hover:scale-105 shadow-md shadow-gold/20">
-              <span className="text-[#FF9933]">U</span>
-              <span className="text-white">w</span>
-              <span className="text-[#138808]">E</span>
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <div className="relative h-11 w-11 transition-transform group-hover:scale-105">
+              <Image
+                src="/images/logo.png"
+                alt="UPSC with Eshwar Logo"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <span className="text-xl sm:text-2xl font-serif font-bold text-navy tracking-tight">
               UPSC <span className="font-sans font-light italic text-sm lowercase text-slate-400 mx-1">with</span> <span className="text-gold">Eshwar</span>
