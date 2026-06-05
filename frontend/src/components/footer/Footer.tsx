@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { FooterLinks } from './FooterLinks';
 import { FooterSocials } from './FooterSocials';
 import { FooterBottom } from './FooterBottom';
@@ -19,20 +20,14 @@ export const Footer = () => {
           {/* Brand & CTA */}
           <div className="lg:col-span-5 flex flex-col">
             <div className="flex items-center gap-3 mb-6 group cursor-default">
-              {/* Premium circular tricolor logo — footer variant */}
-              <div className="relative h-12 w-12 shrink-0">
-                {/* Outer gradient ring */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FF9933] via-white to-[#138808] p-[2.5px] shadow-lg shadow-gold/20 group-hover:shadow-gold/40 transition-all duration-300">
-                  <div className="w-full h-full rounded-full bg-[#060e1f] flex items-center justify-center">
-                    <span className="font-serif font-black text-base leading-none tracking-tight">
-                      <span className="text-[#FF9933]">U</span>
-                      <span className="text-white">W</span>
-                      <span className="text-[#138808]">E</span>
-                    </span>
-                  </div>
-                </div>
-                {/* Glow */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FF9933]/15 to-[#138808]/15 blur-md opacity-60 -z-10" />
+              {/* Logo image with gold ring */}
+              <div className="relative h-14 w-14 shrink-0 rounded-full overflow-hidden ring-2 ring-gold/40 shadow-lg shadow-gold/20 transition-all duration-300 group-hover:ring-gold/70 group-hover:shadow-gold/40">
+                <Image
+                  src="/images/logo.png"
+                  alt="UPSC with Eshwar"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <span className="text-2xl font-serif font-bold text-white tracking-tight">
                 UPSC <span className="font-sans font-light italic text-sm lowercase text-slate-400 mx-1">with</span> <span className="text-gold">Eshwar</span>
