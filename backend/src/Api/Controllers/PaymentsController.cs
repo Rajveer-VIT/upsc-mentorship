@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using UpscMentorship.Application.Interfaces;
 using UpscMentorship.Domain.Entities;
 using UpscMentorship.Infrastructure.Persistence;
 using UpscMentorship.Shared.Responses;
@@ -25,12 +26,24 @@ public class PaymentsController : ControllerBase
 {
     private readonly AppDbContext _db;
     private readonly IConfiguration _config;
+    private readonly IEmailService _emailService;
     private static readonly HttpClient _httpClient = new HttpClient();
 
-    public PaymentsController(AppDbContext db, IConfiguration config)
+    private static readonly Dictionary<string, string> PlanNames = new()
+    {
+        ["study-plan"]      = "Study Plan",
+        ["single-session"]  = "Single Session",
+        ["doubt-clearing"]  = "Doubt Clearing (Monthly)",
+        ["monthly-1on1"]    = "Monthly 1-on-1 Mentorship",
+        ["intensive-1on1"]  = "Intensive 1-on-1 Mentorship",
+        ["annual-plan"]     = "Annual Mentorship Plan"
+    };
+
+    public PaymentsController(AppDbContext db, IConfiguration config, IEmailService emailService)
     {
         _db = db;
         _config = config;
+        _emailService = emailService;
     }
 
     public class CreateOrderRequest
@@ -229,6 +242,18 @@ public class PaymentsController : ControllerBase
             payment.RazorpaySignature = request.RazorpaySignature;
             
             await _db.SaveChangesAsync();
+
+            // Send invoice email (fire-and-forget, don't block response)
+            var user = await _db.Users.FindAsync(userId);
+            if (user != null)
+            {
+                var planName = PlanNames.TryGetValue(payment.PlanId, out var name) ? name : payment.PlanId;
+                _ = Task.Run(async () =>
+                {
+                    try { await _emailService.SendPaymentInvoiceAsync(user, payment, planName); }
+                    catch { /* log if needed, don't crash */ }
+                });
+            }
 
             return Ok(ApiResponse<object>.Ok(new { status = "Success" }, "Payment verified successfully. Plan activated!"));
         }

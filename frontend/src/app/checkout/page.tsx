@@ -287,9 +287,18 @@ function CheckoutContent() {
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-navy dark:text-white mb-4">
             Welcome to the <span className="text-gold italic">Inner Circle</span>
           </h2>
-          <p className="text-sm text-slate-500 dark:text-cream/70 mb-8 leading-relaxed max-w-md mx-auto">
+          <p className="text-sm text-slate-500 dark:text-cream/70 mb-4 leading-relaxed max-w-md mx-auto">
             Your transaction has completed successfully! Your mentorship plan is now active. Your personal timetable calendar and WhatsApp gateway details have been initiated.
           </p>
+
+          {/* Invoice email notification */}
+          <div className="flex items-center justify-center gap-2.5 bg-emerald-500/8 border border-emerald-500/20 rounded-2xl px-5 py-3 mb-8 max-w-sm mx-auto">
+            <span className="text-lg">📧</span>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold text-left">
+              Invoice sent to <span className="font-black">{userEmail || 'your email'}</span>
+              <span className="block font-normal opacity-70 mt-0.5">Check your inbox for the payment receipt.</span>
+            </p>
+          </div>
 
           <Link
             href="/dashboard"

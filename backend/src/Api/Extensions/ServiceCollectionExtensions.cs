@@ -29,6 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IContactInquiryRepository, ContactInquiryRepository>();
         services.AddScoped<ICallBookingRepository, CallBookingRepository>();
         services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IEmailService, EmailService>();
         
         return services;
     }
