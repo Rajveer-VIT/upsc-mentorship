@@ -475,9 +475,11 @@ function CheckoutContent() {
                   </label>
                   <input
                     type="text"
-                    disabled
+                    required
                     value={userName}
-                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-xs text-slate-500 dark:text-cream/50 outline-none"
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Enter your full name"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-gold rounded-xl px-4 py-2.5 text-xs text-navy dark:text-white outline-none transition-colors"
                   />
                 </div>
 
@@ -487,9 +489,11 @@ function CheckoutContent() {
                   </label>
                   <input
                     type="email"
-                    disabled
+                    required
                     value={userEmail}
-                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-xs text-slate-500 dark:text-cream/50 outline-none"
+                    onChange={(e) => setUserEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 focus:border-gold rounded-xl px-4 py-2.5 text-xs text-navy dark:text-white outline-none transition-colors"
                   />
                 </div>
 
