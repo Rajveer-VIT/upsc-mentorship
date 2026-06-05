@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavStore } from '@/store/useNavStore';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, User, ChevronRight } from 'lucide-react';
 import { useUserAuth } from '@/store/useUserAuth';
@@ -61,15 +60,21 @@ export const Navbar = () => {
               : 'bg-white/70 backdrop-blur-sm border border-transparent'}`}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative h-11 w-11 transition-transform group-hover:scale-105">
-              <Image
-                src="/images/logo.png"
-                alt="UPSC with Eshwar Logo"
-                fill
-                className="object-contain"
-                priority
-              />
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
+            {/* Premium circular tricolor logo */}
+            <div className="relative h-11 w-11 shrink-0">
+              {/* Outer gradient ring */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FF9933] via-white to-[#138808] p-[2.5px] shadow-lg shadow-gold/30 group-hover:shadow-gold/50 transition-all duration-300">
+                <div className="w-full h-full rounded-full bg-[#0B1426] flex items-center justify-center">
+                  <span className="font-serif font-black text-sm leading-none tracking-tight">
+                    <span className="text-[#FF9933]">U</span>
+                    <span className="text-white">W</span>
+                    <span className="text-[#138808]">E</span>
+                  </span>
+                </div>
+              </div>
+              {/* Glow pulse */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FF9933]/20 to-[#138808]/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
             </div>
             <span className="text-xl sm:text-2xl font-serif font-bold text-navy tracking-tight">
               UPSC <span className="font-sans font-light italic text-sm lowercase text-slate-400 mx-1">with</span> <span className="text-gold">Eshwar</span>
