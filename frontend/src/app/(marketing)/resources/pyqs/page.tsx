@@ -247,6 +247,42 @@ export default function PyqsPage() {
       {/* Content */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
+        {/* ── COMMUNITY LINKS ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="bg-white border border-gray-200 rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6 shadow-sm mb-12"
+        >
+          <div className="flex-1 text-center sm:text-left">
+            <p className="text-xs font-black uppercase tracking-widest text-orange-500 mb-1">Stay Updated</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-1">Join Our Community</h3>
+            <p className="text-sm text-gray-500">Get instant updates on new PYQs, answer keys, and strategy tips.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+            {/* WhatsApp */}
+            <a
+              href="https://whatsapp.com/channel/0029VbCyspNEKyZ85dyVHw1Q"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-[#25D366] text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#1ebe5d] transition-all shadow-md shadow-green-200 hover:scale-105"
+            >
+              <MessageCircle className="w-4 h-4" />
+              WhatsApp Channel
+            </a>
+            {/* Telegram */}
+            <a
+              href="https://t.me/upscwitheshwar"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-[#229ED9] text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#1a8bbf] transition-all shadow-md shadow-blue-200 hover:scale-105"
+            >
+              <Send className="w-4 h-4" />
+              Telegram Channel
+            </a>
+          </div>
+        </motion.div>
+
         {/* ── SECTION 1: PRELIMS ── */}
         <Section title="Last 10 Years UPSC Prelims Question Papers PDF">
           <tbody>
@@ -336,42 +372,6 @@ export default function PyqsPage() {
             ))}
           </tbody>
         </Section>
-
-        {/* ── COMMUNITY LINKS ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="bg-white border border-gray-200 rounded-2xl p-8 flex flex-col sm:flex-row items-center gap-6 shadow-sm"
-        >
-          <div className="flex-1 text-center sm:text-left">
-            <p className="text-xs font-black uppercase tracking-widest text-orange-500 mb-1">Stay Updated</p>
-            <h3 className="text-xl font-bold text-gray-900 mb-1">Join Our Community</h3>
-            <p className="text-sm text-gray-500">Get instant updates on new PYQs, answer keys, and strategy tips.</p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
-            {/* WhatsApp */}
-            <a
-              href="https://whatsapp.com/channel/0029VbCyspNEKyZ85dyVHw1Q"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-[#25D366] text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#1ebe5d] transition-all shadow-md shadow-green-200 hover:scale-105"
-            >
-              <MessageCircle className="w-4 h-4" />
-              WhatsApp Channel
-            </a>
-            {/* Telegram */}
-            <a
-              href="https://t.me/upscwitheshwar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-[#229ED9] text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#1a8bbf] transition-all shadow-md shadow-blue-200 hover:scale-105"
-            >
-              <Send className="w-4 h-4" />
-              Telegram Channel
-            </a>
-          </div>
-        </motion.div>
 
       </div>
     </div>
