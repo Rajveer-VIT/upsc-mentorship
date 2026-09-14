@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
 export const metadata: Metadata = {
-  title: "UPSC with Eshwar | India's Premium UPSC Platform",
-  description: "India's most premium ecosystem for UPSC preparation.",
+  title: "Best UPSC Mentorship Program | 1-on-1 Mentor - UPSC Eshwar",
+  description: "Get a personal UPSC mentor for 1-on-1 strategy calls, daily UPSC answer writing feedback, and a custom preparation strategy plan. Book your free call today.",
 };
 
 import { SmartPopups } from "@/components/layout/SmartPopups";

@@ -8,7 +8,7 @@ import { Heading } from '@/components/ui';
 export const PlatformDescriptionSection = () => {
   const whoItIsFor = [
     {
-      title: 'Corporate Professionals',
+      title: 'UPSC Coaching for Working Professionals',
       desc: 'Preparing alongside a career; requires maximum output in minimal time.',
       icon: <Briefcase className="w-5 h-5 text-gold" />,
     },
@@ -64,7 +64,7 @@ export const PlatformDescriptionSection = () => {
               Platform Dossier
             </span>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl mb-6 font-black text-green-500" style={{ color: '#22C55E' }}>
-              UPSC with Eshwar
+              Best UPSC Mentorship Program for Working Professionals
             </h2>
             <p className="text-lg text-slate-600 dark:text-cream/85 font-light leading-relaxed">
               A private mentorship platform built for serious UPSC aspirants—especially working 
@@ -227,7 +227,7 @@ export const PlatformDescriptionSection = () => {
           <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000" />
           <div className="relative z-10 max-w-3xl mx-auto">
             <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-90 mb-3 block">Future Vision</span>
-            <h3 className="text-3xl md:text-4xl font-serif font-bold mb-4 text-navy-dark">To become India's most trusted private UPSC mentorship platform.</h3>
+            <h3 className="text-3xl md:text-4xl font-serif font-bold mb-4 text-navy-dark">To become India's most trusted UPSC mentorship program for serious aspirants.</h3>
             <p className="text-base font-semibold mb-8 leading-relaxed text-slate-950">
               Helping thousands of working professionals and serious aspirants secure clarity and strategy without spending lakhs on institutes that don't know their names.
             </p>

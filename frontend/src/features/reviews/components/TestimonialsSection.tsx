@@ -184,7 +184,7 @@ export const TestimonialsSection = () => {
 
                 {/* Author Info */}
                 <div className="border-t border-gray-100 pt-4">
-                  <h3 className="font-bold text-navy text-sm">{story.name}</h3>
+                  <h4 className="font-bold text-navy text-sm">{story.name}</h4>
                   <p className="text-xs text-gray-400 mt-1">{story.title}</p>
                 </div>
               </motion.div>

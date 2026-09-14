@@ -71,11 +71,7 @@ export const FeaturesSection = () => {
             className="max-w-3xl"
           >
             <h2 className="font-serif text-5xl font-bold text-navy dark:text-white sm:text-6xl lg:text-7xl leading-tight">
-              Everything You Need For
-              <br />
-              <span className="text-gold">
-                Focused UPSC Preparation
-              </span>
+              Everything You Need for UPSC Preparation Strategy & Answer Writing
             </h2>
 
             <p className="mt-6 text-xl text-slate-600 dark:text-slate-400 font-light">
@@ -101,7 +97,7 @@ export const FeaturesSection = () => {
         {/* Main Grid */}
         <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
           <BentoCard
-            title="1-on-1 Private Mentorship"
+            title="1-on-1 UPSC Mentorship Program"
             desc="Direct strategy sessions with Eshwar tailored to your preparation stage, strengths, weaknesses, and goals."
             icon={<ShieldCheck className="w-6 h-6" />}
             className="md:col-span-3 md:row-span-2"
@@ -109,7 +105,7 @@ export const FeaturesSection = () => {
           />
 
           <BentoCard
-            title="Personalized Study Plans"
+            title="Personalized UPSC Study Plan"
             desc="Custom study roadmaps built around your work schedule, college commitments, and UPSC targets."
             icon={<Target className="w-6 h-6" />}
             className="md:col-span-3"
@@ -118,7 +114,7 @@ export const FeaturesSection = () => {
           />
 
           <BentoCard
-            title="PYQ Framework"
+            title="UPSC PYQ Analysis Framework"
             desc="Master UPSC patterns through structured analysis of Previous Year Questions."
             icon={<BookOpen className="w-6 h-6" />}
             className="md:col-span-3 lg:col-span-2"
@@ -137,7 +133,7 @@ export const FeaturesSection = () => {
         {/* Secondary Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
           <BentoCard
-            title="Answer Writing Feedback"
+            title="UPSC Answer Writing Evaluation & Feedback"
             desc="Detailed evaluation with practical improvements to enhance answer quality and scoring potential."
             icon={<CheckCircle className="w-6 h-6" />}
             delay={0.4}

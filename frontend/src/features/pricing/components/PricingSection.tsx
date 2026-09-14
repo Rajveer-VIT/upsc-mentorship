@@ -8,7 +8,7 @@ import Link from 'next/link';
 export const PricingSection = () => {
   const tiers = [
     {
-      name: 'Study Plan',
+      name: 'UPSC Study Plan',
       price: '₹299',
       duration: 'one-time',
       description: 'Perfect for building a structured foundation.',
@@ -50,7 +50,7 @@ export const PricingSection = () => {
       buttonVariant: 'outline',
     },
     {
-      name: 'Monthly 1-on-1',
+      name: 'Monthly 1-on-1 UPSC Mentorship',
       price: '₹1,999',
       duration: '/month',
       description: 'Comprehensive guided preparation.',
@@ -65,7 +65,7 @@ export const PricingSection = () => {
       buttonVariant: 'solid',
     },
     {
-      name: 'Intensive 1-on-1',
+      name: 'Intensive UPSC Mentorship Program',
       price: '₹3,999',
       duration: '/month',
       description: 'Daily monitoring for maximum output.',
@@ -80,7 +80,7 @@ export const PricingSection = () => {
       buttonVariant: 'outline',
     },
     {
-      name: 'Annual Plan',
+      name: 'Annual UPSC Mentorship Program',
       price: '₹17,999',
       duration: '/year',
       description: 'Full year direct private circle pass.',

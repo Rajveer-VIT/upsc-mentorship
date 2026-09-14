@@ -89,6 +89,10 @@ export const HeroSection = () => {
             </motion.div>
 
             {/* Mission Cards */}
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-900 mb-8">
+              A Personal UPSC Mentorship Program Built Around You
+            </h2>
+
             <div className="grid md:grid-cols-3 gap-6 mb-16">
               <MissionCard
                 tagline="OUR MISSION"
