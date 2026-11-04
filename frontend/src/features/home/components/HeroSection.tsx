@@ -40,7 +40,7 @@ const MissionCard = ({
 
 export const HeroSection = () => {
   return (
-    <section className="relative py-12 md:py-20 bg-[#F8F6F1] overflow-hidden">
+    <section className="relative pt-32 md:pt-36 pb-12 md:pb-20 bg-[#F8F6F1] overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-amber-100 rounded-full blur-3xl opacity-40" />
         <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-100 rounded-full blur-3xl opacity-40" />
@@ -51,7 +51,7 @@ export const HeroSection = () => {
 
           {/* Left Form */}
           <div className="lg:col-span-4 order-2 lg:order-1">
-            <div className="lg:sticky lg:top-24">
+            <div className="lg:sticky lg:top-32">
               <MentorshipForm />
             </div>
           </div>
