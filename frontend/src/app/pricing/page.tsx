@@ -490,7 +490,7 @@ const PricingPage = () => {
              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
                 <div className="max-w-xl">
                    <h2 className="text-4xl md:text-6xl font-serif font-bold mb-6 leading-tight">Still confused about <br /> the right choice?</h2>
-                   <p className="text-lg font-medium opacity-80">Book a free 15-minute diagnostic call with an ex-IAS mentor to find your perfect path.</p>
+                   <p className="text-lg font-medium opacity-80">Book a free 15-minute diagnostic call with your UPSC mentor to find your perfect path.</p>
                 </div>
                   <button onClick={() => window.dispatchEvent(new Event('openFreeCallModal'))} className="whitespace-nowrap px-10 py-5 bg-[#0A1128] text-white rounded-full font-black uppercase tracking-widest text-sm hover:bg-[#0A1128]/95 transition-all shadow-2xl">
                     Book a Free Call

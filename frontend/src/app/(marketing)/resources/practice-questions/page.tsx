@@ -201,7 +201,7 @@ export default function PracticeQuestionsPage() {
           <div className="relative z-10 flex flex-col items-center">
             <h3 className="text-2xl font-serif font-bold text-white mb-4">Want personalized evaluations?</h3>
             <p className="text-sm text-gray-300 max-w-md mb-8">
-              Get your daily answers reviewed by ex-IAS officers and highly experienced rankers with actionable improvements.
+              Get your daily answers reviewed by an experienced UPSC mentor with clear, actionable improvements.
             </p>
             <Link 
               href="/pricing"
