@@ -21,15 +21,6 @@ public class EmailService : IEmailService
 
     public async Task SendPaymentInvoiceAsync(User user, Payment payment, string planName)
     {
-        var smtpHost     = _config["EmailSettings:SmtpHost"]     ?? "smtp.gmail.com";
-        var smtpPort     = int.Parse(_config["EmailSettings:SmtpPort"] ?? "587");
-        var senderEmail  = _config["EmailSettings:SenderEmail"]  ?? "";
-        var senderPass   = _config["EmailSettings:SenderPassword"] ?? "";
-        var senderName   = _config["EmailSettings:SenderName"]   ?? "UPSC with Eshwar";
-
-        if (string.IsNullOrEmpty(senderEmail) || string.IsNullOrEmpty(senderPass))
-            return; // Email not configured — skip silently
-
         var fullName   = $"{user.FirstName} {user.LastName}".Trim();
         var invoiceNo  = $"INV-{payment.Id.ToString("N")[..8].ToUpper()}";
         var paidDate   = payment.CreatedAt.ToString("dd MMMM yyyy");
@@ -38,13 +29,23 @@ public class EmailService : IEmailService
 
         var html = BuildInvoiceHtml(fullName, user.Email, invoiceNo, planName, amount, paidDate, txnId);
 
+        await SendHtmlAsync(user.Email, fullName, $"Payment Confirmation — {planName} | UPSC with Eshwar", html);
+    }
+
+    public async Task SendHtmlAsync(string toEmail, string toName, string subject, string html)
+    {
+        var smtpHost    = _config["EmailSettings:SmtpHost"] ?? "smtp.gmail.com";
+        var smtpPort    = int.Parse(_config["EmailSettings:SmtpPort"] ?? "587");
+        var senderEmail = _config["EmailSettings:SenderEmail"] ?? "";
+        var senderPass  = _config["EmailSettings:SenderPassword"] ?? "";
+        var senderName  = _config["EmailSettings:SenderName"] ?? "UPSC with Eshwar";
+        if (string.IsNullOrEmpty(senderEmail) || string.IsNullOrEmpty(senderPass)) return;
+
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(senderName, senderEmail));
-        message.To.Add(new MailboxAddress(fullName, user.Email));
-        message.Subject = $"Payment Confirmation — {planName} | UPSC with Eshwar";
-
-        var bodyBuilder = new BodyBuilder { HtmlBody = html };
-        message.Body = bodyBuilder.ToMessageBody();
+        message.To.Add(new MailboxAddress(toName, toEmail));
+        message.Subject = subject;
+        message.Body = new BodyBuilder { HtmlBody = html }.ToMessageBody();
 
         using var client = new SmtpClient();
         await client.ConnectAsync(smtpHost, smtpPort, SecureSocketOptions.StartTls);

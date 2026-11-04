@@ -1,17 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using UpscMentorship.Application.Common;
 using UpscMentorship.Application.Interfaces;
 using UpscMentorship.Domain.Entities;
 using UpscMentorship.Infrastructure.Persistence;
@@ -25,248 +16,84 @@ namespace UpscMentorship.Api.Controllers;
 public class PaymentsController : ControllerBase
 {
     private readonly AppDbContext _db;
-    private readonly IConfiguration _config;
-    private readonly IEmailService _emailService;
-    private static readonly HttpClient _httpClient = new HttpClient();
+    private readonly IRazorpayService _razorpay;
+    private readonly IEmailService _email;
+    private readonly ILogger<PaymentsController> _log;
 
-    private static readonly Dictionary<string, string> PlanNames = new()
-    {
-        ["prelims-blueprint"]    = "Prelims Blueprint",
-        ["mains-blueprint"]      = "Mains Mastery Blueprint",
-        ["current-affairs"]      = "Current Affairs Decoded (Monthly)",
-        ["sociology-circle"]     = "Sociology Mentorship Circle (Monthly)",
-        ["personal-mentorship"]  = "Personal UPSC Mentorship (Monthly)",
-        ["intensive-mentorship"] = "Intensive UPSC Mentorship (Monthly)"
-    };
+    public PaymentsController(AppDbContext db, IRazorpayService razorpay, IEmailService email, ILogger<PaymentsController> log)
+    { _db = db; _razorpay = razorpay; _email = email; _log = log; }
 
-    public PaymentsController(AppDbContext db, IConfiguration config, IEmailService emailService)
-    {
-        _db = db;
-        _config = config;
-        _emailService = emailService;
-    }
+    public record CreateOrderRequest(string PlanId);
+    public record VerifyPaymentRequest(string RazorpayOrderId, string RazorpayPaymentId, string RazorpaySignature);
 
-    public class CreateOrderRequest
-    {
-        public string PlanId { get; set; } = string.Empty;
-    }
+    private Guid? CurrentUserId => Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 
-    public class VerifyPaymentRequest
-    {
-        public string RazorpayOrderId { get; set; } = string.Empty;
-        public string RazorpayPaymentId { get; set; } = string.Empty;
-        public string RazorpaySignature { get; set; } = string.Empty;
-    }
+    [AllowAnonymous]
+    [HttpGet("plans")]
+    public IActionResult Plans() => Ok(ApiResponse<object>.Ok(PlanCatalog.All.Values));
 
     [HttpPost("create-order")]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request)
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest request, CancellationToken ct)
     {
-        // 1. Authenticate user
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!Guid.TryParse(userIdClaim, out var userId))
-        {
-            return Unauthorized(ApiResponse<object>.Failure("Unauthorized. Please log in."));
-        }
+        if (CurrentUserId is not { } userId) return Unauthorized(ApiResponse<object>.Failure("Please log in."));
+        if (!PlanCatalog.All.TryGetValue(request.PlanId ?? "", out var plan)) return BadRequest(ApiResponse<object>.Failure("Invalid plan selected."));
+        if (!_razorpay.IsConfigured) return StatusCode(500, ApiResponse<object>.Failure("Payment gateway is not configured."));
 
-        // Verify user exists
-        var user = await _db.Users.FindAsync(userId);
-        if (user == null)
-        {
-            return Unauthorized(ApiResponse<object>.Failure("User not found."));
-        }
-
-        // 2. Determine price in INR
-        decimal amountInInr = request.PlanId switch
-        {
-            "prelims-blueprint" => 299m,
-            "mains-blueprint" => 499m,
-            "current-affairs" => 399m,
-            "sociology-circle" => 2999m,
-            "personal-mentorship" => 4999m,
-            "intensive-mentorship" => 9999m,
-            _ => 0m
-        };
-
-        if (amountInInr == 0m)
-        {
-            return BadRequest(ApiResponse<object>.Failure("Invalid plan selected."));
-        }
-
-        long amountInPaise = (long)(amountInInr * 100);
-
-        // 3. Read Razorpay settings
-        var keyId = _config["RazorpaySettings:KeyId"];
-        var keySecret = _config["RazorpaySettings:KeySecret"];
-
-        if (string.IsNullOrEmpty(keyId) || string.IsNullOrEmpty(keySecret))
-        {
-            return StatusCode(500, ApiResponse<object>.Failure("Razorpay payment gateway is not configured properly on the server."));
-        }
-
-        // 4. Create Order with Razorpay REST API
-        var receiptId = Guid.NewGuid().ToString("N");
-        var payload = new
-        {
-            amount = amountInPaise,
-            currency = "INR",
-            receipt = receiptId
-        };
-
-        var jsonPayload = JsonSerializer.Serialize(payload);
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://api.razorpay.com/v1/orders")
-        {
-            Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json")
-        };
-
-        var authHeaderValue = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{keyId}:{keySecret}"));
-        requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic", authHeaderValue);
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, ct);
+        if (user == null) return Unauthorized(ApiResponse<object>.Failure("User not found."));
 
         try
         {
-            var response = await _httpClient.SendAsync(requestMessage);
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var rzpOrderId = await _razorpay.CreateOrderAsync(plan.Price, Guid.NewGuid().ToString("N"), ct);
+            _db.Payments.Add(new Payment { UserId = userId, PlanId = plan.Id, Amount = plan.Price, RazorpayOrderId = rzpOrderId });
+            await _db.SaveChangesAsync(ct);
 
-            if (!response.IsSuccessStatusCode)
+            return Ok(ApiResponse<object>.Ok(new
             {
-                return StatusCode((int)response.StatusCode, ApiResponse<object>.Failure($"Razorpay order creation failed: {responseContent}"));
-            }
-
-            using var doc = JsonDocument.Parse(responseContent);
-            var root = doc.RootElement;
-            if (!root.TryGetProperty("id", out var orderIdElement))
-            {
-                return StatusCode(500, ApiResponse<object>.Failure("Failed to retrieve order ID from payment gateway response."));
-            }
-
-            var razorpayOrderId = orderIdElement.GetString();
-            if (string.IsNullOrEmpty(razorpayOrderId))
-            {
-                return StatusCode(500, ApiResponse<object>.Failure("Failed to retrieve valid order ID."));
-            }
-
-            // 5. Save pending Payment record in DB
-            var payment = new Payment
-            {
-                UserId = userId,
-                PlanId = request.PlanId,
-                Amount = amountInInr,
-                Currency = "INR",
-                RazorpayOrderId = razorpayOrderId,
-                Status = "Pending"
-            };
-
-            _db.Payments.Add(payment);
-            await _db.SaveChangesAsync();
-
-            // 6. Return parameters to frontend
-            var responseData = new
-            {
-                orderId = razorpayOrderId,
-                amount = amountInPaise,
+                orderId = rzpOrderId,
+                amount = (long)(plan.Price * 100),
                 currency = "INR",
-                keyId = keyId,
+                keyId = _razorpay.KeyId,
                 userEmail = user.Email,
-                userPhone = "", // placeholder as we don't store user phone by default
+                userPhone = user.PhoneNumber ?? "",
                 userName = $"{user.FirstName} {user.LastName}".Trim()
-            };
-
-            return Ok(ApiResponse<object>.Ok(responseData, "Payment order created successfully."));
+            }, "Payment order created successfully."));
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<object>.Failure($"An error occurred while preparing the payment: {ex.Message}"));
+            _log.LogError(ex, "Plan order creation failed");
+            return StatusCode(502, ApiResponse<object>.Failure("Could not reach the payment gateway. Please try again."));
         }
     }
 
     [HttpPost("verify")]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> VerifyPayment([FromBody] VerifyPaymentRequest request)
+    public async Task<IActionResult> VerifyPayment([FromBody] VerifyPaymentRequest r, CancellationToken ct)
     {
-        // 1. Authenticate user
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!Guid.TryParse(userIdClaim, out var userId))
-        {
-            return Unauthorized(ApiResponse<object>.Failure("Unauthorized. Please log in."));
-        }
-
-        // 2. Validate parameters
-        if (string.IsNullOrEmpty(request.RazorpayOrderId) ||
-            string.IsNullOrEmpty(request.RazorpayPaymentId) ||
-            string.IsNullOrEmpty(request.RazorpaySignature))
-        {
+        if (CurrentUserId is not { } userId) return Unauthorized(ApiResponse<object>.Failure("Please log in."));
+        if (string.IsNullOrEmpty(r.RazorpayOrderId) || string.IsNullOrEmpty(r.RazorpayPaymentId) || string.IsNullOrEmpty(r.RazorpaySignature))
             return BadRequest(ApiResponse<object>.Failure("Missing signature verification parameters."));
-        }
 
-        // Find the payment record matching order ID
-        var payment = await _db.Payments
-            .FirstOrDefaultAsync(p => p.RazorpayOrderId == request.RazorpayOrderId && p.UserId == userId);
+        var payment = await _db.Payments.Include(p => p.User)
+            .FirstOrDefaultAsync(p => p.RazorpayOrderId == r.RazorpayOrderId && p.UserId == userId, ct);
+        if (payment == null) return NotFound(ApiResponse<object>.Failure("Transaction record not found."));
+        if (payment.Status == "Success") return Ok(ApiResponse<object>.Ok(new { status = "Success" }, "Payment already verified."));
 
-        if (payment == null)
+        var valid = _razorpay.VerifySignature(r.RazorpayOrderId, r.RazorpayPaymentId, r.RazorpaySignature);
+        payment.Status = valid ? "Success" : "Failed";
+        payment.RazorpayPaymentId = r.RazorpayPaymentId;
+        payment.RazorpaySignature = r.RazorpaySignature;
+        await _db.SaveChangesAsync(ct);
+
+        if (!valid) return BadRequest(ApiResponse<object>.Failure("Payment verification failed. Invalid signature."));
+
+        var planName = PlanCatalog.All.TryGetValue(payment.PlanId, out var p) ? p.Name : payment.PlanId;
+        var user = payment.User;
+        _ = Task.Run(async () =>
         {
-            return NotFound(ApiResponse<object>.Failure("Transaction record not found."));
-        }
+            try { await _email.SendPaymentInvoiceAsync(user, payment, planName); }
+            catch (Exception ex) { _log.LogWarning(ex, "Invoice email failed"); }
+        });
 
-        // 3. Read Key Secret
-        var keySecret = _config["RazorpaySettings:KeySecret"];
-        if (string.IsNullOrEmpty(keySecret))
-        {
-            return StatusCode(500, ApiResponse<object>.Failure("Razorpay credentials are not configured on the server."));
-        }
-
-        // 4. Compute Razorpay signature verification
-        // formula: HMAC-SHA256(order_id + "|" + payment_id, key_secret)
-        var message = $"{request.RazorpayOrderId}|{request.RazorpayPaymentId}";
-        var keyBytes = Encoding.UTF8.GetBytes(keySecret);
-        var messageBytes = Encoding.UTF8.GetBytes(message);
-
-        using var hmac = new HMACSHA256(keyBytes);
-        var hashBytes = hmac.ComputeHash(messageBytes);
-        
-        var sb = new StringBuilder();
-        foreach (var b in hashBytes)
-        {
-            sb.Append(b.ToString("x2"));
-        }
-        var computedSignature = sb.ToString();
-
-        if (computedSignature.Equals(request.RazorpaySignature, StringComparison.OrdinalIgnoreCase))
-        {
-            // Payment verified successfully
-            payment.Status = "Success";
-            payment.RazorpayPaymentId = request.RazorpayPaymentId;
-            payment.RazorpaySignature = request.RazorpaySignature;
-            
-            await _db.SaveChangesAsync();
-
-            // Send invoice email (fire-and-forget, don't block response)
-            var user = await _db.Users.FindAsync(userId);
-            if (user != null)
-            {
-                var planName = PlanNames.TryGetValue(payment.PlanId, out var name) ? name : payment.PlanId;
-                _ = Task.Run(async () =>
-                {
-                    try { await _emailService.SendPaymentInvoiceAsync(user, payment, planName); }
-                    catch { /* log if needed, don't crash */ }
-                });
-            }
-
-            return Ok(ApiResponse<object>.Ok(new { status = "Success" }, "Payment verified successfully. Plan activated!"));
-        }
-        else
-        {
-            // Verification failed
-            payment.Status = "Failed";
-            payment.RazorpayPaymentId = request.RazorpayPaymentId;
-            payment.RazorpaySignature = request.RazorpaySignature;
-            
-            await _db.SaveChangesAsync();
-
-            return BadRequest(ApiResponse<object>.Failure("Payment verification failed. Invalid signature."));
-        }
+        return Ok(ApiResponse<object>.Ok(new { status = "Success" }, "Payment verified successfully. Plan activated!"));
     }
 }

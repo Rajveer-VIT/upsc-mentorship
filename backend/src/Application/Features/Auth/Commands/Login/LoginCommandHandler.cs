@@ -23,7 +23,7 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, ApiRespo
 
     public async Task<ApiResponse<AuthResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
+        var user = await _userRepository.GetByEmailAsync(request.Email.Trim().ToLowerInvariant(), cancellationToken);
         
         if (user == null)
         {
@@ -48,7 +48,7 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, ApiRespo
         {
             AccessToken = token,
             RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
             UserId = user.Id,
             Email = user.Email,
             FullName = $"{user.FirstName} {user.LastName}".Trim(),

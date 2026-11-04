@@ -26,8 +26,11 @@ public sealed class AdminLoginCommandHandler : IRequestHandler<AdminLoginCommand
 
     public async Task<ApiResponse<AuthResponseDto>> Handle(AdminLoginCommand request, CancellationToken cancellationToken)
     {
-        var configUsername = _config["AdminSettings:Username"] ?? "admin";
-        var configPassword = _config["AdminSettings:Password"] ?? "Admin@123";
+        // No hardcoded fallbacks: admin login is disabled until AdminSettings are configured.
+        var configUsername = _config["AdminSettings:Username"];
+        var configPassword = _config["AdminSettings:Password"];
+        if (string.IsNullOrWhiteSpace(configUsername) || string.IsNullOrWhiteSpace(configPassword))
+            return ApiResponse<AuthResponseDto>.Failure("Admin login is not configured on the server.");
 
         string inputUsername = request.Username.Trim();
 
@@ -95,7 +98,7 @@ public sealed class AdminLoginCommandHandler : IRequestHandler<AdminLoginCommand
         {
             AccessToken = token,
             RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
             UserId = adminUser.Id,
             Email = adminUser.Email,
             FullName = $"{adminUser.FirstName} {adminUser.LastName}".Trim(),

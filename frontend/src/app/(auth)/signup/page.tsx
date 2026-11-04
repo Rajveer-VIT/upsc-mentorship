@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { API_BASE_URL } from '@/lib/constants';
+import { warmUpApi, setAuthCookie, safeRedirect } from '@/lib/api';
 import { useUserAuth } from '@/store/useUserAuth';
 
 const signupSchema = z.object({
@@ -25,6 +26,9 @@ export default function SignupPage() {
   const router = useRouter();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const { setUserAuth } = useUserAuth();
+
+  // Wake the API while the user is typing (avoids cold-start delay on submit)
+  useEffect(() => { warmUpApi(); }, []);
 
   const {
     register,
@@ -50,10 +54,13 @@ phone: data.phone,
         }),
       });
 
-      const result = await response.json();
+      const result = await response.json().catch(() => ({}));
 
       if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Registration failed.');
+        // ApiResponse => message; ASP.NET validation => errors{field:[msg]}
+        const firstValidation = result?.errors && Object.values(result.errors as Record<string, string[]>).flat()[0];
+        setErrorMsg(result?.message || firstValidation || 'Registration failed. Please try again.');
+        return;
       }
 
       // Store in user-specific auth store
@@ -66,16 +73,12 @@ phone: data.phone,
         role: result.data.role,
       });
 
-      // Set user cookie for middleware
-      if (typeof document !== 'undefined') {
-        document.cookie = `user_auth_token=${result.data.accessToken}; path=/; max-age=604800`;
-      }
+      setAuthCookie('user_auth_token', result.data.accessToken);
 
       // Redirect to home page
-      router.push('/');
-    } catch (err: any) {
-      console.error('Registration error:', err);
-      setErrorMsg(err.message || 'Failed to create account. Please try again.');
+      router.replace(safeRedirect(new URLSearchParams(window.location.search).get('redirect')));
+    } catch {
+      setErrorMsg('Unable to reach the server. Please check your internet and try again.');
     }
   };
 

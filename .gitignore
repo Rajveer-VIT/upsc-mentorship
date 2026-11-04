@@ -22,3 +22,11 @@ appsettings.Development.json
 # === OS ===
 .DS_Store
 Thumbs.db
+
+# Secrets
+appsettings.Secrets.json
+.tools/
+
+# Publish output (regenerate: dotnet publish backend/src/Api -c Release -o publish)
+publish/
+_old_publish_output/

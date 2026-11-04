@@ -40,7 +40,7 @@ public class JwtService : IJwtService
             issuer: jwtSettings["Issuer"] ?? "UpscMentorship",
             audience: jwtSettings["Audience"] ?? "UpscMentorship",
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
+            expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: creds
         );
 

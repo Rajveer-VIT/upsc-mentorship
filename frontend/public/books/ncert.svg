@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A1E1E"/><stop offset="1" stop-color="#000" stop-opacity=".85"/></linearGradient></defs>
+<rect width="300" height="420" fill="url(#g)"/><rect x="14" y="14" width="272" height="392" fill="none" stroke="#FFE8A3" stroke-opacity=".5" stroke-width="2"/>
+<text x="150" y="70" fill="#FFE8A3" font-family="Georgia,serif" font-size="13" letter-spacing="4" text-anchor="middle">UPSC SERIES</text>
+<text x="150" y="170" fill="#fff" font-family="Arial,sans-serif" font-weight="800" font-size="30" text-anchor="middle">NCERT</text>
+<text x="150" y="208" fill="#FFE8A3" font-family="Arial,sans-serif" font-weight="800" font-size="26" text-anchor="middle">SUMMARY</text>
+<line x1="90" y1="235" x2="210" y2="235" stroke="#FFE8A3" stroke-width="2"/>
+<text x="150" y="365" fill="#fff" font-family="Arial,sans-serif" font-size="15" text-anchor="middle">Class 6 - 12</text>
+<text x="150" y="388" fill="#FFE8A3" font-family="Arial,sans-serif" font-size="10" letter-spacing="2" text-anchor="middle" opacity=".8">SAMPLE COVER</text></svg>

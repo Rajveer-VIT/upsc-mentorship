@@ -5,6 +5,10 @@ using UpscMentorship.Application.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Secrets live in appsettings.Secrets.json (git-ignored) or environment variables.
+builder.Configuration.AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: false);
+builder.Configuration.AddEnvironmentVariables();
+
 // Add Core and Feature Layers Services
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -54,7 +58,8 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Database Migration
+// Database Migration (disable with RunMigrationsOnStartup=false to speed up cold starts)
+if (app.Configuration.GetValue("RunMigrationsOnStartup", true))
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -63,6 +68,7 @@ using (var scope = app.Services.CreateScope())
             .GetRequiredService<UpscMentorship.Infrastructure.Persistence.AppDbContext>();
 
         await context.Database.MigrateAsync();
+        await UpscMentorship.Infrastructure.Persistence.BookSeed.SeedAsync(context);
     }
     catch (Exception ex)
     {
@@ -89,6 +95,9 @@ app.UseRateLimiter();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+// Lightweight warm-up endpoint: frontend pings this so the server is awake before login/signup.
+app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 
 app.MapControllers().RequireRateLimiting("fixed");
 

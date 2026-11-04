@@ -41,6 +41,9 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .IsRequired()
             .HasDefaultValue("Pending");
 
+        builder.HasIndex(p => p.RazorpayOrderId).IsUnique();
+        builder.HasIndex(p => new { p.UserId, p.Status });
+
         // Configure foreign key
         builder.HasOne(p => p.User)
             .WithMany()

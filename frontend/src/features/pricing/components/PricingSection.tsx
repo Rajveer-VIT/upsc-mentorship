@@ -4,100 +4,23 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, Star } from 'lucide-react';
 import Link from 'next/link';
+import { PLANS, formatINR } from '@/lib/plans';
 
 export const PricingSection = () => {
-  const tiers = [
-    {
-      name: 'UPSC Study Plan',
-      price: '₹299',
-      duration: 'one-time',
-      description: 'Perfect for building a structured foundation.',
-      features: [
-        'Curated micro-timetable framework',
-        'High-yield booklist checklist',
-        'Self-tracking excel template',
-      ],
-      isPopular: false,
-      cta: 'Book Plan Now',
-      buttonVariant: 'outline',
-    },
-    {
-      name: 'Single Session',
-      price: '₹499',
-      duration: 'per session',
-      description: 'Resolve specific doubts and strategy blocks.',
-      features: [
-        '45-minute 1-on-1 strategy call',
-        'Immediate query resolution',
-        'Actionable diagnostic review',
-      ],
-      isPopular: false,
-      cta: 'Book Session',
-      buttonVariant: 'outline',
-    },
-    {
-      name: 'Doubt Clearing',
-      price: '₹599',
-      duration: '/month',
-      description: 'Quick WhatsApp access for daily queries.',
-      features: [
-        'Direct WhatsApp access to Eshwar',
-        'Quick response (< 12 hours)',
-        'Strictly strategy and booklet doubts',
-      ],
-      isPopular: false,
-      cta: 'Activate Gateway',
-      buttonVariant: 'outline',
-    },
-    {
-      name: 'Monthly 1-on-1 UPSC Mentorship',
-      price: '₹1,999',
-      duration: '/month',
-      description: 'Comprehensive guided preparation.',
-      features: [
-        '4 dedicated 1-on-1 calls per month',
-        'Weekly goal tracking and milestones',
-        'WhatsApp doubt clearing gateway',
-        'Critical answer writing feedback',
-      ],
-      isPopular: true,
-      cta: 'Secure Spot',
-      buttonVariant: 'solid',
-    },
-    {
-      name: 'Intensive UPSC Mentorship Program',
-      price: '₹3,999',
-      duration: '/month',
-      description: 'Daily monitoring for maximum output.',
-      features: [
-        'Daily monitoring and alignment checks',
-        'Unlimited calls on strategy blocks',
-        'Priority answer feedback (< 24 hours)',
-        'Direct customized test series reviews',
-      ],
-      isPopular: false,
-      cta: 'Apply for Intensive',
-      buttonVariant: 'outline',
-    },
-    {
-      name: 'Annual UPSC Mentorship Program',
-      price: '₹17,999',
-      duration: '/year',
-      description: 'Full year direct private circle pass.',
-      features: [
-        'Full 12-month direct private circle pass',
-        'Customized study calendar for Prelims & Mains',
-        'Complete handholding until interview stage',
-        'Massive 25% discount',
-      ],
-      isPopular: false,
-      cta: 'Secure Annual Pass',
-      buttonVariant: 'outline',
-    },
-  ];
+  const tiers = PLANS.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: formatINR(p.price),
+    duration: p.duration === 'monthly' ? '/ month' : 'one-time',
+    description: p.desc,
+    features: p.features.slice(0, 5),
+    isPopular: !!p.popular,
+    cta: 'Choose Plan',
+    buttonVariant: p.popular ? 'solid' : 'outline',
+  }));
 
   return (
-    <section className="py-24 bg-white relative overflow-hidden" id="pricing">
+    <section className="py-16 md:py-24 bg-white relative overflow-hidden" id="pricing">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -117,17 +40,17 @@ export const PricingSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch max-w-6xl mx-auto">
           {tiers.map((tier, index) => (
             <motion.div
-              key={tier.name}
+              key={tier.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`relative rounded-[2.5rem] p-8 sm:p-10 transition-all duration-300 flex flex-col ${
+              className={`relative rounded-[2rem] p-7 sm:p-8 transition-all duration-300 flex flex-col ${
                 tier.isPopular 
-                  ? 'bg-navy text-white shadow-2xl shadow-navy/20 scale-100 md:scale-105 border-2 border-gold z-10' 
+                  ? 'bg-navy text-white shadow-2xl shadow-navy/20 lg:scale-[1.03] border-2 border-gold z-10' 
                   : 'bg-white text-navy border border-gray-200 shadow-xl shadow-gray-100 hover:border-gold/50'
               }`}
             >
@@ -168,7 +91,7 @@ export const PricingSection = () => {
               </ul>
 
               <Link
-                href="/pricing"
+                href={`/checkout?plan=${tier.id}`}
                 className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest transition-all text-center flex items-center justify-center ${
                   tier.buttonVariant === 'solid'
                     ? 'bg-gold text-navy hover:bg-white hover:shadow-lg'

@@ -5,16 +5,25 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Menu, X, Shield } from 'lucide-react';
+import { LogOut, Menu, X, Shield, LayoutDashboard, Package, BookOpen, ClipboardList } from 'lucide-react';
 import { logoutUser } from '@/lib/auth-utils';
 
 export const Sidebar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const navItems = [
-    { label: 'Admin Panel', href: '/dashboard/admin', icon: <Shield className="w-5 h-5" /> },
-  ];
+  const isAdminArea = pathname.startsWith('/dashboard/admin');
+  const navItems = isAdminArea
+    ? [
+        { label: 'Admin Panel', href: '/dashboard/admin', icon: <Shield className="w-5 h-5" /> },
+        { label: 'Book Store', href: '/dashboard/admin/store', icon: <Package className="w-5 h-5" /> },
+      ]
+    : [
+        { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+        { label: 'Quizzes', href: '/dashboard/quizzes', icon: <ClipboardList className="w-5 h-5" /> },
+        { label: 'My Orders', href: '/dashboard/orders', icon: <Package className="w-5 h-5" /> },
+        { label: 'Shop Books', href: '/books', icon: <BookOpen className="w-5 h-5" /> },
+      ];
 
   const handleLogout = () => {
     logoutUser();

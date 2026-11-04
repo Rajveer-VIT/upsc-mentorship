@@ -24,7 +24,7 @@ public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, Ap
 
     public async Task<ApiResponse<AuthResponseDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        var existingUser = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
+        var existingUser = await _userRepository.GetByEmailAsync(request.Email.Trim().ToLowerInvariant(), cancellationToken);
         if (existingUser != null)
         {
             return ApiResponse<AuthResponseDto>.Failure("User with this email already exists.");
@@ -38,7 +38,7 @@ public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, Ap
         {
             FirstName = firstName,
             LastName = lastName,
-            Email = request.Email,
+            Email = request.Email.Trim().ToLowerInvariant(),
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = Role.Student
         };
@@ -53,7 +53,7 @@ public sealed class RegisterCommandHandler : IRequestHandler<RegisterCommand, Ap
         {
             AccessToken = token,
             RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
             UserId = user.Id,
             Email = user.Email,
             FullName = $"{user.FirstName} {user.LastName}".Trim(),

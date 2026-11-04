@@ -20,7 +20,8 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+                sql => sql.EnableRetryOnFailure(3)));
             
         // Repositories and external services
         services.AddScoped<IUserRepository, UserRepository>();
@@ -30,6 +31,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICallBookingRepository, CallBookingRepository>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddSingleton<IRazorpayService, RazorpayService>();
         
         return services;
     }

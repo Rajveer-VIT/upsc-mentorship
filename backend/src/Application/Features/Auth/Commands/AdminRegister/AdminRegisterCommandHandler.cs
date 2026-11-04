@@ -27,8 +27,8 @@ public class AdminRegisterCommandHandler : IRequestHandler<AdminRegisterCommand,
     public async Task<ApiResponse<AuthResponseDto>> Handle(AdminRegisterCommand request, CancellationToken cancellationToken)
     {
         // 1. Verify Admin registration code
-        var configAdminCode = _config["AdminSettings:RegistrationCode"] ?? "AdminSecured2026";
-        if (request.AdminCode != configAdminCode)
+        var configAdminCode = _config["AdminSettings:RegistrationCode"];
+        if (string.IsNullOrWhiteSpace(configAdminCode) || request.AdminCode != configAdminCode)
         {
             return ApiResponse<AuthResponseDto>.Failure("Invalid admin registration verification code.");
         }
@@ -65,7 +65,7 @@ public class AdminRegisterCommandHandler : IRequestHandler<AdminRegisterCommand,
         {
             AccessToken = token,
             RefreshToken = refreshToken,
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
             UserId = adminUser.Id,
             Email = adminUser.Email,
             FullName = $"{adminUser.FirstName} {adminUser.LastName}".Trim(),

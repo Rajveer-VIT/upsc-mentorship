@@ -11,4 +11,7 @@ public interface IEmailService
     /// Sends a payment invoice email to the user after successful payment.
     /// </summary>
     Task SendPaymentInvoiceAsync(User user, Payment payment, string planName);
+
+    /// <summary>Sends a raw HTML email. Silently no-ops when SMTP is not configured.</summary>
+    Task SendHtmlAsync(string toEmail, string toName, string subject, string html);
 }

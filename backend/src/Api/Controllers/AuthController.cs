@@ -77,18 +77,4 @@ public class AuthController : BaseController
         var result = await Mediator.Send(command);
         return OkResponse(result);
     }
-
-    /// <summary>
-    /// Refreshes the authentication tokens.
-    /// </summary>
-    /// <returns>New authentication tokens.</returns>
-    [HttpPost("refresh")]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Refresh()
-    {
-        // Stub for future RefreshTokenCommand
-        var stubResult = ApiResponse<object>.Failure("Refresh token endpoint is not implemented yet.");
-        return OkResponse(stubResult);
-    }
 }

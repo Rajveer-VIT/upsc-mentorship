@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { API_BASE_URL } from '@/lib/constants';
+import { warmUpApi, setAuthCookie, safeRedirect } from '@/lib/api';
 import { useUserAuth } from '@/store/useUserAuth';
 
 const loginSchema = z.object({
@@ -21,9 +22,11 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  //const searchParams = useSearchParams();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const { setUserAuth } = useUserAuth();
+
+  // Wake the API while the user is typing (avoids cold-start delay on submit)
+  useEffect(() => { warmUpApi(); }, []);
 
   const {
     register,
@@ -47,10 +50,13 @@ export default function LoginPage() {
         }),
       });
 
-      const result = await response.json();
+      const result = await response.json().catch(() => ({}));
 
       if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Invalid credentials.');
+        // ApiResponse => message; ASP.NET validation => errors{field:[msg]}
+        const firstValidation = result?.errors && Object.values(result.errors as Record<string, string[]>).flat()[0];
+        setErrorMsg(result?.message || firstValidation || 'Invalid email or password. Please try again.');
+        return;
       }
 
       // Store in user-specific auth store
@@ -63,16 +69,12 @@ export default function LoginPage() {
         role: result.data.role,
       });
 
-      // Set user cookie for middleware
-      if (typeof document !== 'undefined') {
-        document.cookie = `user_auth_token=${result.data.accessToken}; path=/; max-age=604800`;
-      }
+      setAuthCookie('user_auth_token', result.data.accessToken);
 
       // Redirect to requested page or home page
-      router.push('/');
-    } catch (err: any) {
-      console.error('Login error:', err);
-      setErrorMsg(err.message || 'Invalid email or password. Please try again.');
+      router.replace(safeRedirect(new URLSearchParams(window.location.search).get('redirect')));
+    } catch {
+      setErrorMsg('Unable to reach the server. Please check your internet and try again.');
     }
   };
 

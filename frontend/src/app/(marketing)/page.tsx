@@ -6,6 +6,7 @@ import { PlatformDescriptionSection } from '@/features/home/components/PlatformD
 import { TestimonialsSection } from '@/features/reviews/components/TestimonialsSection';
 import { PricingSection } from '@/features/pricing/components/PricingSection';
 import { CtaSection } from '@/features/home/components/CtaSection';
+import { BooksTeaser } from '@/features/books/components/BooksTeaser';
 
 export default function MarketingPage() {
   return (
@@ -16,6 +17,7 @@ export default function MarketingPage() {
       <PlatformDescriptionSection />
       <TestimonialsSection />
       <PricingSection />
+      <BooksTeaser />
       <CtaSection />
     </>
   );

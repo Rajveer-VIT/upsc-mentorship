@@ -23,6 +23,9 @@ public class AppDbContext : DbContext
     public DbSet<ContactInquiry> ContactInquiries => Set<ContactInquiry>();
     public DbSet<CallBooking> CallBookings => Set<CallBooking>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Book> Books => Set<Book>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,17 +34,14 @@ public class AppDbContext : DbContext
         // Apply configurations from the current assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         
-        // Global query filter for soft delete
-        modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Quiz>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Question>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Option>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<QuizAttempt>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<QuizAttemptAnswer>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<MentorshipApplication>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<ContactInquiry>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<CallBooking>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Payment>().HasQueryFilter(e => !e.IsDeleted);
+        // Global soft-delete filter for every BaseEntity
+        foreach (var et in modelBuilder.Model.GetEntityTypes().Where(t => typeof(BaseEntity).IsAssignableFrom(t.ClrType)))
+        {
+            var p = System.Linq.Expressions.Expression.Parameter(et.ClrType, "e");
+            var body = System.Linq.Expressions.Expression.Not(
+                System.Linq.Expressions.Expression.Property(p, nameof(BaseEntity.IsDeleted)));
+            et.SetQueryFilter(System.Linq.Expressions.Expression.Lambda(body, p));
+        }
 
         // Prevent multiple cascade paths in SQL Server
         foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))

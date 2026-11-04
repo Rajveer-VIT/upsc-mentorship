@@ -18,6 +18,8 @@ import {
   UserCheck
 } from 'lucide-react';
 import { API_BASE_URL } from '@/lib/constants';
+import Link from 'next/link';
+import { api } from '@/lib/api';
 import { logoutAdmin } from '@/lib/auth-utils';
 
 interface UserData {
@@ -92,6 +94,7 @@ export default function AdminDashboardPage() {
   const [applications, setApplications] = useState<MentorshipApplicationData[]>([]);
   
   // Loader & Errors
+  const [store, setStore] = useState<{ toShip: number; inTransit: number; revenue30d: number; orders30d: number; lowStock: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -109,6 +112,7 @@ export default function AdminDashboardPage() {
   };
 
   const fetchAllData = async () => {
+    api<typeof store>('/orders/admin/summary', { auth: 'admin' }).then(setStore).catch(() => setStore(null));
     setLoading(true);
     setError(null);
     try {
@@ -405,7 +409,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center justify-center gap-2.5">
           <button
             onClick={fetchAllData}
             disabled={loading}
@@ -478,6 +482,22 @@ export default function AdminDashboardPage() {
             Total Queries Received
           </div>
         </div>
+      </div>
+
+      {/* Book store snapshot */}
+      <div className="bg-slate-950/50 px-6 pb-6 -mt-3 border-b border-slate-800">
+        <Link href="/dashboard/admin/store" className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-gold/30 bg-slate-900 px-4 py-3 text-xs font-mono hover:border-gold transition-colors">
+          <span className="font-bold text-gold uppercase tracking-wider">📚 Book Store</span>
+          {store ? (
+            <>
+              <span className={store.toShip ? 'text-amber-400 font-bold' : 'text-slate-400'}>{store.toShip} to ship</span>
+              <span className="text-slate-400">{store.inTransit} in transit</span>
+              <span className="text-emerald-400">₹{store.revenue30d.toLocaleString('en-IN')} · {store.orders30d} orders (30d)</span>
+              {store.lowStock > 0 && <span className="text-red-400 font-bold">{store.lowStock} low stock</span>}
+            </>
+          ) : <span className="text-slate-500">Loading…</span>}
+          <span className="ml-auto text-slate-300">Manage →</span>
+        </Link>
       </div>
 
       {/* 3. FORMULA BAR (fx) - Styled Search Bar */}

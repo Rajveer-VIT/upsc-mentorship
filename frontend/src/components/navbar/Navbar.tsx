@@ -5,7 +5,9 @@ import { useNavStore } from '@/store/useNavStore';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, ChevronRight } from 'lucide-react';
+import { Menu, X, User, ChevronRight, ShoppingBag } from 'lucide-react';
+import { useCart } from '@/store/useCart';
+import { warmUpApi } from '@/lib/api';
 import { useUserAuth } from '@/store/useUserAuth';
 import { useAdminAuth } from '@/store/useAdminAuth';
 import { logoutUser, logoutAdmin } from '@/lib/auth-utils';
@@ -17,6 +19,15 @@ export const Navbar = () => {
 
   const userName = useUserAuth((s) => s.fullName);
   const adminName = useAdminAuth((s) => s.fullName);
+  const cartCount = useCart((s) => s.lines.reduce((n, l) => n + l.quantity, 0));
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    warmUpApi(); // wake the API early so login/checkout respond fast
+    useUserAuth.getState().getUserAuth();
+    useAdminAuth.getState().getAdminAuth();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,8 +51,8 @@ export const Navbar = () => {
   const navLinks = [
     { label: 'About', href: '/about' },
     { label: 'Mentorship', href: '/#mentorship' },
-    { label: 'Reviews', href: '/#proven-results' },
     { label: 'Pricing', href: '/pricing' },
+    { label: 'Books', href: '/books' },
     { label: 'Resources', href: '/resources/pyqs' },
     { label: 'Contact Us', href: '/contact' },
   ];
@@ -56,7 +67,7 @@ export const Navbar = () => {
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className={`mx-auto max-w-7xl flex items-center justify-between rounded-full px-6 py-3 transition-all duration-500
+          className={`mx-auto max-w-7xl flex items-center justify-between rounded-full px-4 sm:px-6 py-3 transition-all duration-500
             ${isScrolled 
               ? 'bg-white/90 backdrop-blur-md border border-gray-200 shadow-sm' 
               : 'bg-white/70 backdrop-blur-sm border border-transparent'}`}
@@ -78,7 +89,7 @@ export const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
@@ -91,8 +102,16 @@ export const Navbar = () => {
             ))}
           </nav>
 
+          {/* Cart */}
+          <Link href="/cart" aria-label="Cart" className="relative ml-auto mr-3 md:mr-0 md:order-last md:ml-4 p-2 rounded-full text-navy hover:bg-slate-100 transition-colors">
+            <ShoppingBag className="w-5 h-5" />
+            {mounted && cartCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-gold text-[10px] font-bold text-white flex items-center justify-center">{cartCount}</span>
+            )}
+          </Link>
+
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-6 shrink-0">
+          <div className="hidden md:flex items-center gap-4 xl:gap-6 shrink-0">
             {adminName ? (
               <>
                 <span className="text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm">
@@ -100,19 +119,19 @@ export const Navbar = () => {
                 </span>
                 <button
                   onClick={handleAdminLogout}
-                  className="relative overflow-hidden rounded-full bg-navy px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
+                  className="relative overflow-hidden rounded-full bg-navy px-6 xl:px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
                 >
                   Admin Logout
                 </button>
               </>
             ) : userName ? (
               <>
-                <span className="text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm">
+                <Link href="/dashboard/orders" className="text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm hover:border-gold max-w-[160px] truncate">
                   Hi, {userName}
-                </span>
+                </Link>
                 <button
                   onClick={handleUserLogout}
-                  className="relative overflow-hidden rounded-full bg-navy px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
+                  className="relative overflow-hidden rounded-full bg-navy px-6 xl:px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
                 >
                   Logout
                 </button>
@@ -128,7 +147,7 @@ export const Navbar = () => {
                 </Link>
                 <Link
                   href="/signup"
-                  className="relative overflow-hidden rounded-full bg-navy px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
+                  className="relative overflow-hidden rounded-full bg-navy px-6 xl:px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
                 >
                   <span className="relative z-10">Get Started</span>
                 </Link>
