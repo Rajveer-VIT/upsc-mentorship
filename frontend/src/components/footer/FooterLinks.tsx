@@ -27,6 +27,7 @@ export const FooterLinks = () => {
         { label: 'Terms of Service', href: '/terms' },
         { label: 'Privacy Policy', href: '/privacy' },
         { label: 'Refund Policy', href: '/refund' },
+        { label: 'Shipping Policy', href: '/shipping' },
       ],
     },
   ];

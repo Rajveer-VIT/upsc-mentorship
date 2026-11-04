@@ -9,6 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: false);
 builder.Configuration.AddEnvironmentVariables();
 
+// Fail fast with a clear message instead of returning 500 on every request.
+// On Render: Environment → add e.g. ConnectionStrings__DefaultConnection, JwtSettings__SecretKey.
+var missingConfig = new[] { "ConnectionStrings:DefaultConnection", "JwtSettings:SecretKey" }
+    .Where(k => string.IsNullOrWhiteSpace(builder.Configuration[k])).ToArray();
+if (missingConfig.Length > 0)
+    throw new InvalidOperationException(
+        $"Missing required configuration: {string.Join(", ", missingConfig)}. " +
+        "Set them as environment variables (replace ':' with '__') or in appsettings.Secrets.json.");
+
 // Add Core and Feature Layers Services
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -89,6 +98,9 @@ app.UseSwaggerUI(c =>
 // app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
+
+// After CORS so error responses still carry CORS headers (browser shows the real error, not "Failed to fetch").
+app.UseMiddleware<UpscMentorship.Api.Middleware.ExceptionMiddleware>();
 
 app.UseRateLimiter();
 

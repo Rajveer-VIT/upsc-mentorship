@@ -37,9 +37,7 @@ public class ExceptionMiddleware
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
         var response = ApiResponse<object>.Failure(
-            "An error occurred while processing your request.",
-            new[] { exception.Message } // In production, we might want to hide the actual exception message
-        );
+            "Something went wrong. Please try again in a moment."); // details are logged, never sent to clients
 
         var json = JsonSerializer.Serialize(response, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         return context.Response.WriteAsync(json);

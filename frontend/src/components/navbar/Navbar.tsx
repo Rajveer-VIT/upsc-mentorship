@@ -67,7 +67,7 @@ export const Navbar = () => {
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className={`mx-auto max-w-7xl flex items-center justify-between rounded-full px-4 sm:px-6 py-3 transition-all duration-500
+          className={`mx-auto max-w-7xl flex items-center justify-between gap-4 rounded-full px-4 sm:px-6 py-3 transition-all duration-500
             ${isScrolled 
               ? 'bg-white/90 backdrop-blur-md border border-gray-200 shadow-sm' 
               : 'bg-white/70 backdrop-blur-sm border border-transparent'}`}
@@ -83,18 +83,18 @@ export const Navbar = () => {
                 priority
               />
             </div>
-            <span className="text-xl sm:text-2xl font-serif font-bold text-navy tracking-tight">
+            <span className="whitespace-nowrap text-xl sm:text-2xl font-serif font-bold text-navy tracking-tight">
               UPSC <span className="font-sans font-light italic text-sm lowercase text-slate-400 mx-1">with</span> <span className="text-gold">Eshwar</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-8">
+          <nav className="hidden xl:flex items-center gap-6 2xl:gap-8 min-w-0">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="relative text-xs font-semibold uppercase tracking-widest text-navy/70 hover:text-navy transition-colors group"
+                className="relative whitespace-nowrap text-xs font-semibold uppercase tracking-widest text-navy/70 hover:text-navy transition-colors group"
               >
                 {link.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-gold transition-all duration-300 group-hover:w-full" />
@@ -111,10 +111,10 @@ export const Navbar = () => {
           </Link>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-4 xl:gap-6 shrink-0">
+          <div className="hidden md:flex items-center gap-3 2xl:gap-6 shrink-0">
             {adminName ? (
               <>
-                <span className="text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm">
+                <span className="hidden 2xl:inline-block text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm max-w-[180px] truncate">
                   Hi, {adminName}
                 </span>
                 <button
@@ -126,7 +126,7 @@ export const Navbar = () => {
               </>
             ) : userName ? (
               <>
-                <Link href="/dashboard/orders" className="text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm hover:border-gold max-w-[160px] truncate">
+                <Link href="/dashboard/orders" className="hidden 2xl:inline-block text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm hover:border-gold max-w-[160px] truncate">
                   Hi, {userName}
                 </Link>
                 <button
@@ -158,7 +158,7 @@ export const Navbar = () => {
           {/* Mobile Menu Toggle */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-navy hover:bg-gray-100 rounded-full transition-colors"
+            className="xl:hidden p-2 text-navy hover:bg-gray-100 rounded-full transition-colors"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -173,7 +173,7 @@ export const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl p-8 lg:hidden flex flex-col pt-32"
+            className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl p-8 xl:hidden flex flex-col pt-32"
           >
             <nav className="flex flex-col gap-6">
               {navLinks.map((link, i) => (

@@ -17,14 +17,19 @@ export async function api<T = unknown>(
       ? localStorage.getItem(auth === 'admin' ? 'admin_accessToken' : 'user_accessToken')
       : null;
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...rest,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, {
+      ...rest,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
+      },
+    });
+  } catch {
+    throw new ApiError('Server is not reachable right now. Please refresh in a few seconds.', 0);
+  }
 
   if (res.status === 401) throw new ApiError('Your session has expired. Please log in again.', 401);
   const body = await res.json().catch(() => null);

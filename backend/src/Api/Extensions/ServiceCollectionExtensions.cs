@@ -42,7 +42,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtSettings = configuration.GetSection("JwtSettings");
-        var secretKey = jwtSettings["SecretKey"] ?? "default_super_secret_key_that_needs_to_be_long_enough";
+        var secretKey = jwtSettings["SecretKey"]!; // validated at startup in Program.cs
 
         services.AddAuthentication(options =>
         {
