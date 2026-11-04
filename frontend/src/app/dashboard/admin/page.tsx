@@ -20,6 +20,7 @@ import {
 import { API_BASE_URL } from '@/lib/constants';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { StoreManager } from '@/features/admin/StoreManager';
 import { logoutAdmin } from '@/lib/auth-utils';
 
 interface UserData {
@@ -80,7 +81,8 @@ interface MentorshipApplicationData {
   createdAt: string;
 }
 
-type ActiveSheet = 'USERS' | 'PAYMENTS' | 'CALLS' | 'INQUIRIES' | 'APPLICATIONS' | 'SETTINGS';
+type ActiveSheet = 'USERS' | 'PAYMENTS' | 'CALLS' | 'INQUIRIES' | 'APPLICATIONS' | 'ORDERS' | 'BOOKS' | 'SETTINGS';
+const STORE_SHEETS: ActiveSheet[] = ['ORDERS', 'BOOKS'];
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -419,7 +421,7 @@ export default function AdminDashboardPage() {
             <span>RECALCULATE</span>
           </button>
           
-          {activeSheet !== 'SETTINGS' && (
+          {activeSheet !== 'SETTINGS' && !STORE_SHEETS.includes(activeSheet) && (
             <button
               onClick={exportToCSV}
               disabled={loading || filteredData.length === 0}
@@ -486,7 +488,7 @@ export default function AdminDashboardPage() {
 
       {/* Book store snapshot */}
       <div className="bg-slate-950/50 px-6 pb-6 -mt-3 border-b border-slate-800">
-        <Link href="/dashboard/admin/store" className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-gold/30 bg-slate-900 px-4 py-3 text-xs font-mono hover:border-gold transition-colors">
+        <Link href="/dashboard/admin/store" onClick={(e) => { e.preventDefault(); setActiveSheet('ORDERS'); }} className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-gold/30 bg-slate-900 px-4 py-3 text-xs font-mono hover:border-gold transition-colors">
           <span className="font-bold text-gold uppercase tracking-wider">📚 Book Store</span>
           {store ? (
             <>
@@ -501,7 +503,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 3. FORMULA BAR (fx) - Styled Search Bar */}
-      {activeSheet !== 'SETTINGS' && (
+      {activeSheet !== 'SETTINGS' && !STORE_SHEETS.includes(activeSheet) && (
         <div className="bg-slate-950 px-6 py-2.5 flex items-center border-b border-slate-800 gap-3 font-mono text-xs">
           <span className="text-slate-500 font-bold italic select-none">fx</span>
           <div className="h-4 w-[1px] bg-slate-800"></div>
@@ -534,6 +536,11 @@ export default function AdminDashboardPage() {
           <div className="flex flex-col items-center justify-center py-24 gap-4 flex-1">
             <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
             <span className="text-xs font-mono text-slate-500 tracking-widest">LOADING SPREADSHEET CELL CELLS...</span>
+          </div>
+        ) : STORE_SHEETS.includes(activeSheet) ? (
+          /* BOOK STORE: orders & catalogue management */
+          <div className="flex-1 bg-slate-50 p-4 sm:p-6 rounded-b-none">
+            <StoreManager key={activeSheet} initialTab={activeSheet === 'ORDERS' ? 'orders' : 'books'} embedded />
           </div>
         ) : activeSheet === 'SETTINGS' ? (
           
@@ -926,6 +933,20 @@ export default function AdminDashboardPage() {
         >
           <span>Sheet5: Mentorship Apps 📝</span>
         </button>
+
+        {/* Book store tabs */}
+        {(['ORDERS', 'BOOKS'] as const).map((sheet, i) => (
+          <button
+            key={sheet}
+            onClick={() => { setActiveSheet(sheet); setSearchTerm(''); }}
+            className={`px-5 py-3 border-r border-slate-800 flex items-center gap-2 hover:bg-slate-900 transition-colors whitespace-nowrap ${
+              activeSheet === sheet ? 'bg-slate-900 text-gold font-bold border-t-2 border-t-gold' : 'text-slate-500 bg-slate-950'
+            }`}
+          >
+            <span>{`Sheet${7 + i}: ${sheet === 'ORDERS' ? 'Book Orders 📦' : 'Books 📚'}`}</span>
+            {sheet === 'ORDERS' && !!store?.toShip && <span className="rounded-full bg-amber-500 px-1.5 text-[10px] font-bold text-white">{store.toShip}</span>}
+          </button>
+        ))}
 
         {/* Password / Settings Tab */}
         <button

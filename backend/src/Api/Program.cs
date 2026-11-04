@@ -65,7 +65,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Behind Render/Vercel proxies: trust X-Forwarded-For so rate limiting & logs see the real client IP.
+builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(o =>
+{
+    o.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    o.ForwardLimit = 1;      // only the proxy directly in front of us
+    o.KnownNetworks.Clear();  // Render proxy IPs are dynamic
+    o.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+app.UseForwardedHeaders();
 
 // Database Migration (disable with RunMigrationsOnStartup=false to speed up cold starts)
 if (app.Configuration.GetValue("RunMigrationsOnStartup", true))
@@ -111,6 +121,6 @@ app.UseAuthorization();
 // Lightweight warm-up endpoint: frontend pings this so the server is awake before login/signup.
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 
-app.MapControllers().RequireRateLimiting("fixed");
+app.MapControllers();
 
 app.Run();

@@ -9,7 +9,8 @@ namespace UpscMentorship.Infrastructure.Services;
 
 public class RazorpayService : IRazorpayService
 {
-    private static readonly HttpClient Http = new() { BaseAddress = new Uri("https://api.razorpay.com/v1/"), Timeout = TimeSpan.FromSeconds(20) };
+    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(20) };
+    private readonly string _baseUrl;
     private readonly string _keyId;
     private readonly string _keySecret;
 
@@ -17,6 +18,8 @@ public class RazorpayService : IRazorpayService
     {
         _keyId = config["RazorpaySettings:KeyId"] ?? "";
         _keySecret = config["RazorpaySettings:KeySecret"] ?? "";
+        // Overridable only for automated tests; defaults to the real Razorpay API.
+        _baseUrl = (config["RazorpaySettings:BaseUrl"] ?? "https://api.razorpay.com/v1/").TrimEnd('/') + "/";
     }
 
     public string KeyId => _keyId;
@@ -25,7 +28,7 @@ public class RazorpayService : IRazorpayService
     public async Task<string> CreateOrderAsync(decimal amountInr, string receipt, CancellationToken ct = default)
     {
         var payload = JsonSerializer.Serialize(new { amount = (long)Math.Round(amountInr * 100), currency = "INR", receipt });
-        using var req = new HttpRequestMessage(HttpMethod.Post, "orders") { Content = new StringContent(payload, Encoding.UTF8, "application/json") };
+        using var req = new HttpRequestMessage(HttpMethod.Post, _baseUrl + "orders") { Content = new StringContent(payload, Encoding.UTF8, "application/json") };
         req.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_keyId}:{_keySecret}")));
         using var res = await Http.SendAsync(req, ct);
         var body = await res.Content.ReadAsStringAsync(ct);
@@ -37,7 +40,7 @@ public class RazorpayService : IRazorpayService
     public async Task<string> RefundAsync(string paymentId, decimal? amountInr = null, CancellationToken ct = default)
     {
         object payload = amountInr is { } a ? new { amount = (long)Math.Round(a * 100) } : new { };
-        using var req = new HttpRequestMessage(HttpMethod.Post, $"payments/{paymentId}/refund")
+        using var req = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}payments/{paymentId}/refund")
         { Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json") };
         req.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{_keyId}:{_keySecret}")));
         using var res = await Http.SendAsync(req, ct);

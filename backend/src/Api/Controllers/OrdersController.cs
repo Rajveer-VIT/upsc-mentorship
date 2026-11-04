@@ -31,7 +31,9 @@ public class OrdersController : ControllerBase
     public record Address(string Name, string Phone, string Line1, string? Line2, string City, string State, string Pincode);
     public record CreateOrderRequest(List<CartItem> Items, Address Address);
     public record VerifyRequest(string RazorpayOrderId, string RazorpayPaymentId, string RazorpaySignature);
-    public record StatusRequest(OrderStatus Status, string? Courier, string? TrackingNumber);
+    public record StatusRequest(
+        [property: System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))] OrderStatus Status,
+        string? Courier, string? TrackingNumber);
 
     private Guid UserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -132,7 +134,7 @@ public class OrdersController : ControllerBase
     [HttpGet("mine")]
     public async Task<IActionResult> Mine(CancellationToken ct)
     {
-        var orders = await _db.Orders.AsNoTracking().Where(o => o.UserId == UserId && o.Status != OrderStatus.PendingPayment)
+        var orders = await _db.Orders.AsNoTracking().Where(o => o.UserId == UserId && o.Status != OrderStatus.PendingPayment && o.Status != OrderStatus.PaymentFailed)
             .OrderByDescending(o => o.CreatedAt).Select(Projection).ToListAsync(ct);
         return Ok(ApiResponse<object>.Ok(orders));
     }

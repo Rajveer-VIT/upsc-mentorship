@@ -88,26 +88,30 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Configures IP-partitioned rate limiting policy.
+    /// Per-client-IP rate limiting (real IP comes from X-Forwarded-For via UseForwardedHeaders).
+    /// Auth endpoints get a strict budget against password guessing; everything else a generous one.
     /// </summary>
     public static IServiceCollection AddApiRateLimiter(this IServiceCollection services)
     {
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = Microsoft.AspNetCore.Http.StatusCodes.Status429TooManyRequests;
-            
-            options.AddPolicy("fixed", httpContext =>
-                System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers["X-Forwarded-For"].ToString() ?? "unknown",
-                    factory: partition => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(ctx =>
+            {
+                var ip = ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                var isAuth = ctx.Request.Path.StartsWithSegments("/api/auth") && HttpMethods.IsPost(ctx.Request.Method);
+                return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+                    (isAuth ? "auth:" : "api:") + ip,
+                    _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
                     {
-                        AutoReplenishment = true,
-                        PermitLimit = 30,
+                        PermitLimit = isAuth ? 10 : 120,
+                        Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
-                        Window = TimeSpan.FromMinutes(1)
-                    }));
+                        AutoReplenishment = true
+                    });
+            });
         });
-        
+
         return services;
     }
 }
