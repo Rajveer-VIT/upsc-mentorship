@@ -13,7 +13,6 @@ public static class ApplicationServiceExtensions
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        services.AddAutoMapper(assembly);
         
         services.AddValidatorsFromAssembly(assembly);
         
