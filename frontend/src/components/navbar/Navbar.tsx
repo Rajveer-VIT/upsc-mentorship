@@ -67,7 +67,7 @@ export const Navbar = () => {
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className={`mx-auto max-w-7xl flex items-center justify-between gap-4 rounded-full px-4 sm:px-6 py-3 transition-all duration-500
+          className={`mx-auto max-w-[1440px] flex items-center justify-between gap-4 rounded-full px-4 sm:px-6 py-3 transition-all duration-500
             ${isScrolled 
               ? 'bg-white/90 backdrop-blur-md border border-gray-200 shadow-sm' 
               : 'bg-white/70 backdrop-blur-sm border border-transparent'}`}
@@ -89,7 +89,7 @@ export const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden xl:flex items-center gap-6 2xl:gap-8 min-w-0">
+          <nav className="hidden xl:flex flex-1 items-center justify-center gap-5 2xl:gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
@@ -111,45 +111,39 @@ export const Navbar = () => {
           </Link>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-3 2xl:gap-6 shrink-0">
-            {adminName ? (
+          <div className="hidden md:flex items-center gap-2 shrink-0">
+            {adminName || userName ? (
               <>
-                <span className="hidden 2xl:inline-block text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm max-w-[180px] truncate">
-                  Hi, {adminName}
-                </span>
-                <button
-                  onClick={handleAdminLogout}
-                  className="relative overflow-hidden rounded-full bg-navy px-6 xl:px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
+                {/* Compact account chip: icon + first name, never pushes into the links */}
+                <Link
+                  href={adminName ? '/dashboard/admin' : '/dashboard/orders'}
+                  title={adminName ? `Admin: ${adminName}` : `My account: ${userName}`}
+                  className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 py-1.5 pl-1.5 pr-3 text-xs font-semibold text-navy hover:border-gold transition-colors"
                 >
-                  Admin Logout
-                </button>
-              </>
-            ) : userName ? (
-              <>
-                <Link href="/dashboard/orders" className="hidden 2xl:inline-block text-xs font-semibold uppercase tracking-widest text-navy bg-slate-50 border border-slate-100 px-4 py-2 rounded-full shadow-sm hover:border-gold max-w-[160px] truncate">
-                  Hi, {userName}
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-navy text-white"><User className="w-3.5 h-3.5" /></span>
+                  <span className="max-w-[110px] truncate">{(adminName || userName)!.split(' ')[0]}</span>
                 </Link>
                 <button
-                  onClick={handleUserLogout}
-                  className="relative overflow-hidden rounded-full bg-navy px-6 xl:px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
+                  onClick={adminName ? handleAdminLogout : handleUserLogout}
+                  className="rounded-full bg-navy px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-navy/20 transition-colors hover:bg-gold whitespace-nowrap"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link 
-                  href="/login" 
-                  className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-navy/70 hover:text-navy transition-colors"
+                <Link
+                  href="/login"
+                  className="flex items-center gap-2 px-2 text-xs font-semibold uppercase tracking-widest text-navy/70 hover:text-navy transition-colors whitespace-nowrap"
                 >
                   <User className="w-4 h-4" />
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="relative overflow-hidden rounded-full bg-navy px-6 xl:px-8 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-navy/20 transition-all hover:scale-105 hover:bg-gold active:scale-95"
+                  className="rounded-full bg-navy px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-navy/20 transition-colors hover:bg-gold whitespace-nowrap"
                 >
-                  <span className="relative z-10">Get Started</span>
+                  Get Started
                 </Link>
               </>
             )}
